@@ -1,12 +1,16 @@
 import { google } from 'googleapis';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host');
+    const protocol = req.headers.get('x-forwarded-proto') || 'https';
+    const redirectUri = `${protocol}://${host}/api/auth/callback`;
+
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.APP_URL}/api/auth/callback`
+      redirectUri
     );
 
     const url = oauth2Client.generateAuthUrl({
