@@ -11,14 +11,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const baseUrl = (process.env.APP_URL || '').replace(/\/$/, '');
-    let redirectUri = `${baseUrl}/api/auth/callback`;
-    
-    if (!baseUrl) {
-      const host = req.headers.get('x-forwarded-host') || req.headers.get('host');
-      const protocol = req.headers.get('x-forwarded-proto') || 'https';
-      redirectUri = `${protocol}://${host}/api/auth/callback`;
-    }
+    const fallbackUrl = 'https://ais-dev-xdwftwtrs654ccdmstpxez-455112370051.asia-southeast1.run.app';
+    const baseUrl = (process.env.APP_URL || fallbackUrl).replace(/\/$/, '');
+    const redirectUri = `${baseUrl}/api/auth/callback`;
 
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -26,7 +21,10 @@ export async function GET(req: NextRequest) {
       redirectUri
     );
 
-    const { tokens } = await oauth2Client.getToken(code);
+    const { tokens } = await oauth2Client.getToken({
+      code: code,
+      redirect_uri: redirectUri
+    });
 
     const cookieStore = await cookies();
     cookieStore.set('gsc_access_token', tokens.access_token!, {

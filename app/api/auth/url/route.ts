@@ -3,14 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const baseUrl = (process.env.APP_URL || '').replace(/\/$/, '');
-    let redirectUri = `${baseUrl}/api/auth/callback`;
-    
-    if (!baseUrl) {
-      const host = req.headers.get('x-forwarded-host') || req.headers.get('host');
-      const protocol = req.headers.get('x-forwarded-proto') || 'https';
-      redirectUri = `${protocol}://${host}/api/auth/callback`;
-    }
+    const fallbackUrl = 'https://ais-dev-xdwftwtrs654ccdmstpxez-455112370051.asia-southeast1.run.app';
+    const baseUrl = (process.env.APP_URL || fallbackUrl).replace(/\/$/, '');
+    const redirectUri = `${baseUrl}/api/auth/callback`;
 
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -25,7 +20,8 @@ export async function GET(req: NextRequest) {
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email'
       ],
-      prompt: 'consent'
+      prompt: 'consent',
+      redirect_uri: redirectUri
     });
 
     return NextResponse.json({ url });
