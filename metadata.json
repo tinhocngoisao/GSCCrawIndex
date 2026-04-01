@@ -1,0 +1,5 @@
+{
+  "name": "Google Search Console Dashboard",
+  "description": "A dashboard to manage your Google Search Console properties, view performance, and inspect URLs.",
+  "requestFramePermissions": []
+}
